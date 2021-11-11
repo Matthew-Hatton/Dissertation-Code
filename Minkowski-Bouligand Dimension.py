@@ -1,48 +1,52 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct 18 17:02:37 2021
+
+@author: Matty
+"""
+
 import numpy as np
-import scipy
-import scipy.misc
+import matplotlib.pyplot as plt
 
-def rgb2gray(rgb):
-    r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
-    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-    return gray
+def scalefactor(scales):
+    scalefactorlist = []
+    for i in range(scales):
+        scalefactorlist.append([2**i])
+    scalefactors = []
+    for x in scalefactorlist:
+        for item in x:     
+            scalefactors.append(item)
+    scalefactors.insert(0,0)
+    scalefactors.pop(1)
+    return scalefactors
+    
 
-def fractal_dimension(Z, threshold=0.9):
-    # Only for 2d image
-    assert(len(Z.shape) == 2)
+        
+scalefactors = scalefactor(4) #Input how many scales
 
-    # From https://github.com/rougier/numpy-100 (#87)
-    def boxcount(Z, k):
-        S = np.add.reduceat(
-            np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
-                               np.arange(0, Z.shape[1], k), axis=1)
 
-        # We count non-empty (0) and non-full boxes (k*k)
-        return len(np.where((S > 0) & (S < k*k))[0])
 
-    # Transform Z into a binary array
-    Z = (Z < threshold)
+logscalefactors = []
+for i in range(len(scalefactors)):
+    logscalefactors.append(np.log(scalefactors[i]))
+logscalefactors[0] = 0
 
-    # Minimal dimension of image
-    p = min(Z.shape)
 
-    # Greatest power of 2 less than or equal to p
-    n = 2**np.floor(np.log(p)/np.log(2))
+N = [20,44,79,225] #Input number of elements inside boxes
+logN = []
+for y in N:
+    logN.append(np.log(y))
 
-    # Extract the exponent
-    n = int(np.log(n)/np.log(2))
 
-    # Build successive box sizes (from 2**n down to 2**1)
-    sizes = 2**np.arange(n, 1, -1)
+logscalefactorsarr = np.array(logscalefactors)
+logNarr = np.array(logN)
 
-    # Actual box counting with decreasing size
-    counts = []
-    for size in sizes:
-        counts.append(boxcount(Z, size))
-
-    # Fit the successive log(sizes) with log (counts)
-    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
-    return -coeffs[0]
-
-I = rgb2gray(scipy.misc.imread("koch.png"))
-print("Minkowski–Bouligand dimension (computed): ", fractal_dimension(I))
+plt.plot(logscalefactorsarr,logNarr,'o')
+plt.xlabel('Logarithmic Scale factor')
+plt.ylabel('Logarithmic Number of boxes counted')
+m, b = np.polyfit(logscalefactorsarr,logNarr,1)
+print('******************')
+print("The Fractal dimension is",m)
+print('******************')
+plt.plot(logscalefactorsarr,m*logscalefactorsarr + b)
+plt.show()
