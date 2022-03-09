@@ -1,47 +1,35 @@
-# importing necessary modules
+from PIL import Image
+import random
 import matplotlib.pyplot as plt
-from random import randint
-  
-# initializing the list
-x = []
-y = []
-  
-# setting first element to 0
-x.append(0)
-y.append(0)
-  
-current = 0
-  
-for i in range(1, 50000):
-  
-    # generates a random integer between 1 and 100
-    z = randint(1, 100)
-  
-    # the x and y coordinates of the equations
-    # are appended in the lists respectively.
-      
-    # for the probability 0.01
-    if z == 1:
-        x.append(0)
-        y.append(0.16*(y[current]))
-      
-    # for the probability 0.85    
-    if z>= 2 and z<= 86:
-        x.append(0.85*(x[current]) + 0.04*(y[current]))
-        y.append(-0.04*(x[current]) + 0.85*(y[current])+1.6)
-      
-    # for the probability 0.07    
-    if z>= 87 and z<= 93:
-        x.append(0.2*(x[current]) - 0.26*(y[current]))
-        y.append(0.23*(x[current]) + 0.22*(y[current])+1.6)
-      
-    # for the probability 0.07    
-    if z>= 94 and z<= 100:
-        x.append(-0.15*(x[current]) + 0.28*(y[current]))
-        y.append(0.26*(x[current]) + 0.24*(y[current])+0.44)
-          
-    current = current + 1
-   
-plt.scatter(x, y, s = 0.2, edgecolor ='green')
-plt.savefig('Barnsleysfern.jpeg')
+A=[]
+mat=[[0.0,0.0,0.0,0.16,0.0,0.0,0.01],
+[0.85,0.04,-0.04,0.85,0.0,1.6,0.85],
+[0.2,-0.26,0.23,0.22,0.0,1.6,0.07],
+[-0.15,0.28,0.26,0.24,0.0,0.44,0.07]]
+x=0.0
+y=0.0
+for k in range(0,100000):
+    p=random.random()
+    if p <= mat[0][6]:
+        i=0
+    elif p <= mat[0][6] + mat[1][6]:
+        i=1
+    elif p <= mat[0][6] + mat[1][6] + mat[2][6]:
+        i=2
+    else:
+        i=3
+
+    x0 = x * mat[i][0] + y * mat[i][1] + mat[i][4]
+    y  = x * mat[i][2] + y * mat[i][3] + mat[i][5]
+    x = x0
+
+    ptn=[x,y]
+
+    A.append(ptn)
+
+
+plt.figure(figsize=(20,30))
+plt.scatter( *zip(*A),marker='o', color='black',s=1)
+plt.axis("off")
+plt.savefig('barntestblack.png')
 plt.show()
